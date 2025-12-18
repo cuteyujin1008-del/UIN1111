@@ -1,23 +1,40 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>전표 알림</title>
+  <title>Kakao Share</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script>
+    Kakao.init("ff9ae14e50059eda1305ea6dc9c4e3cf");
+
+    function sendMsg() {
+      const qs = new URLSearchParams(window.location.search);
+
+      // 카톡에 보낼 메시지 (기존 그대로)
+      const msg = qs.get("msg") || "메시지가 전달되지 않았습니다.";
+
+      // ⭐️ PDF 링크 (Glide에서 넘겨줄 값)
+      // 예: https://cute-brioche-7af4c9.netlify.app/pdfs/전표ID.pdf
+      const pdfUrl = qs.get("pdf");
+
+      if (!pdfUrl) {
+        alert("PDF 링크가 없습니다.");
+        return;
+      }
+
+      Kakao.Share.sendDefault({
+        objectType: "text",
+        text: msg,
+        link: {
+          mobileWebUrl: pdfUrl,
+          webUrl: pdfUrl
+        }
+      });
+    }
+
+    window.onload = sendMsg;
+  </script>
 </head>
 <body>
-  <h2>📄 전표 내용</h2>
-  <pre id="msg">메시지를 불러오는 중...</pre>
-
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const msg = params.get("msg");
-
-    if (msg) {
-      document.getElementById("msg").textContent = msg;
-    } else {
-      document.getElementById("msg").textContent = "메시지가 없습니다.";
-    }
-  </script>
 </body>
 </html>
