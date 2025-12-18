@@ -8,16 +8,15 @@
     Kakao.init("ff9ae14e50059eda1305ea6dc9c4e3cf");
 
     function isDetailMode() {
-      const qs = new URLSearchParams(window.location.search);
-      return qs.get("detail") === "1";
+      return new URLSearchParams(location.search).get("detail") === "1";
     }
 
-    function sendMsg() {
-      const qs = new URLSearchParams(window.location.search);
-      const msg = qs.get("msg") || "메시지가 전달되지 않았습니다.";
+    function sendKakao() {
+      const qs = new URLSearchParams(location.search);
+      const msg = qs.get("msg") || "";
 
-      const url = new URL(window.location.href);
-      url.search = "";
+      // 🔑 현재 링크를 복사해서 detail=1만 추가
+      const url = new URL(location.href);
       url.searchParams.set("detail", "1");
 
       Kakao.Share.sendDefault({
@@ -32,22 +31,22 @@
 
     function handleLoad() {
       if (isDetailMode()) {
-        // ✅ 자세히 보기 클릭 시 → PDF로 이동
-        const qs = new URLSearchParams(window.location.search);
+        // ✅ 자세히 보기 → PDF 생성 함수로 이동
+        // (msg 그대로 전달)
+        const qs = new URLSearchParams(location.search);
+        const msg = qs.get("msg") || "";
 
-        // 🔥 여기 PDF 주소만 나중에 바꿔주면 됨
         const pdfUrl =
-          qs.get("pdf") ||
-          "https://example.com/sample.pdf";
+          "/.netlify/functions/voucher?msg=" +
+          encodeURIComponent(msg);
 
         location.replace(pdfUrl);
       } else {
-        // ✅ 처음 열릴 때는 카톡 공유만
-        sendMsg();
+        // ✅ 최초 열림 → 카카오 공유
+        sendKakao();
       }
     }
   </script>
 </head>
-<body onload="handleLoad()">
-</body>
+<body onload="handleLoad()"></body>
 </html>
