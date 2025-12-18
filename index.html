@@ -24,6 +24,17 @@
     <a id="pdfBtn" class="btn" href="#" target="_blank" style="display:none;">📎 PDF 열기</a>
   </div>
 
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const detail = params.get("detail");
+  const msg = params.get("msg");
+
+  // 🔥 자세히 보기 눌렀을 때
+  if (detail === "1") {
+    // PDF로 즉시 이동
+    location.replace("/voucher_template.pdf");
+  }
+</script>
   <!-- ✅ 처음 열릴 때(카톡 공유 시도) fallback 안내 -->
   <div id="shareFallback" style="display:none;">
     <h2>📩 카카오톡 공유 중...</h2>
