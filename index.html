@@ -4,93 +4,45 @@
   <meta charset="UTF-8" />
   <title>전표 알림</title>
   <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    pre { white-space: pre-wrap; word-break: break-word; font-size: 15px; }
-    .btn {
-      display: inline-block; margin-top: 12px; padding: 10px 14px;
-      border: 1px solid #ddd; border-radius: 8px; text-decoration: none;
-    }
-  </style>
 </head>
 
 <body>
-  <!-- ✅ detail=1 일 때만 보여줄 화면 -->
-  <div id="detailView" style="display:none;">
-    <h2>📄 전표 내용</h2>
-    <pre id="msg">메시지를 불러오는 중...</pre>
 
-    <!-- PDF 버튼(있을 때만 보여줌) -->
-    <a id="pdfBtn" class="btn" href="#" target="_blank" style="display:none;">📎 PDF 열기</a>
-  </div>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const detail = params.get("detail");
+  const msg = params.get("msg");
 
-  <!-- ✅ 처음 열릴 때(카톡 공유 시도) fallback 안내 -->
-  <div id="shareFallback" style="display:none;">
-    <h2>📩 카카오톡 공유 중...</h2>
-    <p>잠시 후 공유창이 뜨지 않으면, 브라우저에서 팝업 차단을 해제하거나 다시 시도해 주세요.</p>
-  </div>
+  // ✅ 자세히 보기 눌렀을 때 → PDF 바로 열기
+  if (detail === "1") {
+    location.replace("/voucher_template.pdf");
+  }
+</script>
 
-  <script>
-    // ✅ 너 카카오 JS 키
+<script>
+  // ✅ 최초 진입 시만 카톡 공유
+  if (!new URLSearchParams(window.location.search).get("detail")) {
     Kakao.init("ff9ae14e50059eda1305ea6dc9c4e3cf");
 
-    const params = new URLSearchParams(window.location.search);
-    const isDetail = params.get("detail") === "1";
+    const msg =
+      new URLSearchParams(window.location.search).get("msg") ||
+      "메시지가 전달되지 않았습니다.";
 
-    function buildDetailUrl() {
-      // 현재 페이지를 기준으로 detail=1 링크 생성
-      const url = new URL(window.location.origin + window.location.pathname);
-      url.searchParams.set("detail", "1");
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.searchParams.set("detail", "1");
+    url.searchParams.set("msg", msg);
 
-      // 🔥 msg, pdf 그대로 전달 (자세히보기 화면에서 사용)
-      const msg = params.get("msg");
-      const pdf = params.get("pdf");
-      if (msg) url.searchParams.set("msg", msg);
-      if (pdf) url.searchParams.set("pdf", pdf);
-
-      return url.toString();
-    }
-
-    function sendKakaoShare() {
-      const msg = params.get("msg") || "메시지가 전달되지 않았습니다.";
-      const detailUrl = buildDetailUrl();
-
-      document.getElementById("shareFallback").style.display = "block";
-
-      Kakao.Share.sendDefault({
-        objectType: "text",
-        text: msg,
-        link: {
-          mobileWebUrl: detailUrl,
-          webUrl: detailUrl
-        }
-      });
-    }
-
-    function showDetailPage() {
-      document.getElementById("detailView").style.display = "block";
-
-      const msg = params.get("msg");
-      document.getElementById("msg").textContent = msg ? msg : "메시지가 없습니다.";
-
-      // ✅ detail 모드에서만 PDF 버튼 노출
-      const pdf = params.get("pdf");
-      if (pdf) {
-        const btn = document.getElementById("pdfBtn");
-        btn.href = pdf;
-        btn.style.display = "inline-block";
+    Kakao.Share.sendDefault({
+      objectType: "text",
+      text: msg,
+      link: {
+        mobileWebUrl: url.toString(),
+        webUrl: url.toString()
       }
-    }
+    });
+  }
+</script>
 
-    window.onload = function () {
-      if (isDetail) {
-        // ✅ 카톡에서 "자세히 보기" 눌렀을 때 = 전표 내용 화면
-        showDetailPage();
-      } else {
-        // ✅ Glide에서 링크 열렸을 때 = 카톡 공유 먼저
-        sendKakaoShare();
-      }
-    };
-  </script>
 </body>
 </html>
