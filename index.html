@@ -11,11 +11,15 @@
       return new URLSearchParams(location.search).get("detail") === "1";
     }
 
-    function sendKakao() {
+    function sendKakaoOnce() {
+      // 🔐 이미 공유했으면 다시 공유하지 않음
+      if (sessionStorage.getItem("kakao_shared") === "1") {
+        return;
+      }
+
       const qs = new URLSearchParams(location.search);
       const msg = qs.get("msg") || "";
 
-      // 🔑 현재 링크를 복사해서 detail=1만 추가
       const url = new URL(location.href);
       url.searchParams.set("detail", "1");
 
@@ -27,12 +31,14 @@
           webUrl: url.toString()
         }
       });
+
+      // 공유 완료 표시
+      sessionStorage.setItem("kakao_shared", "1");
     }
 
     function handleLoad() {
       if (isDetailMode()) {
-        // ✅ 자세히 보기 → PDF 생성 함수로 이동
-        // (msg 그대로 전달)
+        // ✅ 자세히 보기 → PDF로 바로 이동
         const qs = new URLSearchParams(location.search);
         const msg = qs.get("msg") || "";
 
@@ -42,8 +48,8 @@
 
         location.replace(pdfUrl);
       } else {
-        // ✅ 최초 열림 → 카카오 공유
-        sendKakao();
+        // ✅ 최초 진입 → 카카오 공유 (1회만)
+        sendKakaoOnce();
       }
     }
   </script>
