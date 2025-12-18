@@ -19,24 +19,30 @@
       const url = new URL(window.location.href);
       url.search = "";
       url.searchParams.set("detail", "1");
-      const detailUrl = url.toString();
 
       Kakao.Share.sendDefault({
         objectType: "text",
         text: msg,
         link: {
-          mobileWebUrl: detailUrl,
-          webUrl: detailUrl
+          mobileWebUrl: url.toString(),
+          webUrl: url.toString()
         }
       });
     }
 
     function handleLoad() {
       if (isDetailMode()) {
-        // 즉시 닫기 시도 + 즉시 빈 페이지 이동
-        window.close();
-        location.replace("about:blank");
+        // ✅ 자세히 보기 클릭 시 → PDF로 이동
+        const qs = new URLSearchParams(window.location.search);
+
+        // 🔥 여기 PDF 주소만 나중에 바꿔주면 됨
+        const pdfUrl =
+          qs.get("pdf") ||
+          "https://example.com/sample.pdf";
+
+        location.replace(pdfUrl);
       } else {
+        // ✅ 처음 열릴 때는 카톡 공유만
         sendMsg();
       }
     }
