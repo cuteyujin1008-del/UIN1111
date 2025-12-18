@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Netlify 테스트</title>
+  <meta charset="UTF-8" />
+  <title>전표 알림</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 </head>
 <body>
-  <h1>✅ 사이트 정상 작동</h1>
-  <p>index.html이 정상적으로 열렸습니다.</p>
+  <h2>📄 전표 내용</h2>
+  <pre id="msg">메시지를 불러오는 중...</pre>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const msg = params.get("msg");
+
+    if (msg) {
+      document.getElementById("msg").textContent = msg;
+    } else {
+      document.getElementById("msg").textContent = "메시지가 없습니다.";
+    }
+  </script>
 </body>
 </html>
