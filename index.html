@@ -7,34 +7,41 @@
   <script>
     Kakao.init("ff9ae14e50059eda1305ea6dc9c4e3cf");
 
+    function isDetailMode() {
+      const qs = new URLSearchParams(window.location.search);
+      return qs.get("detail") === "1";
+    }
+
     function sendMsg() {
       const qs = new URLSearchParams(window.location.search);
-
-      // 카톡에 보낼 메시지 (기존 그대로)
       const msg = qs.get("msg") || "메시지가 전달되지 않았습니다.";
 
-      // ⭐️ PDF 링크 (Glide에서 넘겨줄 값)
-      // 예: https://cute-brioche-7af4c9.netlify.app/pdfs/전표ID.pdf
-      const pdfUrl = qs.get("pdf");
-
-      if (!pdfUrl) {
-        alert("PDF 링크가 없습니다.");
-        return;
-      }
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.searchParams.set("detail", "1");
+      const detailUrl = url.toString();
 
       Kakao.Share.sendDefault({
         objectType: "text",
         text: msg,
         link: {
-          mobileWebUrl: pdfUrl,
-          webUrl: pdfUrl
+          mobileWebUrl: detailUrl,
+          webUrl: detailUrl
         }
       });
     }
 
-    window.onload = sendMsg;
+    function handleLoad() {
+      if (isDetailMode()) {
+        // 즉시 닫기 시도 + 즉시 빈 페이지 이동
+        window.close();
+        location.replace("about:blank");
+      } else {
+        sendMsg();
+      }
+    }
   </script>
 </head>
-<body>
+<body onload="handleLoad()">
 </body>
 </html>
