@@ -8,19 +8,16 @@
     Kakao.init("ff9ae14e50059eda1305ea6dc9c4e3cf");
 
     function isDetailMode() {
-      return new URLSearchParams(location.search).get("detail") === "1";
+      const qs = new URLSearchParams(window.location.search);
+      return qs.get("detail") === "1";
     }
 
-    function sendKakaoOnce() {
-      // 🔐 이미 공유했으면 다시 공유하지 않음
-      if (sessionStorage.getItem("kakao_shared") === "1") {
-        return;
-      }
+    function sendMsg() {
+      const qs = new URLSearchParams(window.location.search);
+      const msg = qs.get("msg") || "메시지가 전달되지 않았습니다.";
 
-      const qs = new URLSearchParams(location.search);
-      const msg = qs.get("msg") || "";
-
-      const url = new URL(location.href);
+      const url = new URL(window.location.href);
+      url.search = "";
       url.searchParams.set("detail", "1");
 
       Kakao.Share.sendDefault({
@@ -31,28 +28,26 @@
           webUrl: url.toString()
         }
       });
-
-      // 공유 완료 표시
-      sessionStorage.setItem("kakao_shared", "1");
     }
 
     function handleLoad() {
       if (isDetailMode()) {
-        // ✅ 자세히 보기 → PDF로 바로 이동
-        const qs = new URLSearchParams(location.search);
-        const msg = qs.get("msg") || "";
+        // ✅ 자세히 보기 클릭 시 → PDF로 이동
+        const qs = new URLSearchParams(window.location.search);
 
+        // 🔥 여기 PDF 주소만 나중에 바꿔주면 됨
         const pdfUrl =
-          "/.netlify/functions/voucher?msg=" +
-          encodeURIComponent(msg);
+          qs.get("pdf") ||
+          "https://example.com/sample.pdf";
 
         location.replace(pdfUrl);
       } else {
-        // ✅ 최초 진입 → 카카오 공유 (1회만)
-        sendKakaoOnce();
+        // ✅ 처음 열릴 때는 카톡 공유만
+        sendMsg();
       }
     }
   </script>
 </head>
-<body onload="handleLoad()"></body>
+<body onload="handleLoad()">
+</body>
 </html>
